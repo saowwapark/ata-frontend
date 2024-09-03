@@ -1,3 +1,4 @@
+import {mapToString, mapToNumber, mapToDate} from './../utils/formatter'
 export interface BankAccountModel {
   account?: string,
   operation?: string,
@@ -23,28 +24,6 @@ export interface BankAccountModel {
   userId?: string
 }
 
-function mapToNumber(item: any): number | undefined {
-  if (item === undefined) return undefined
-  else if (item === '') return 0;
-  else if (item === 'null') return undefined;
-  else if (item === 'undefined') return undefined;
-  else return item as number;
-}
-
-function mapToString(item: any): string | undefined {
-  if (item === undefined) return ''
-  else return item as string;
-}
-
-function mapToDate(item: any): Date | undefined {
-  try {
-    if (item === undefined) return undefined;
-    else return new Date(item);
-  } catch {
-    return undefined;
-  }
-  
-}
 export function mapToBankAccountModel(item: any): BankAccountModel {
   return {
     account: mapToString(item.account),

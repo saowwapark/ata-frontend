@@ -34,6 +34,7 @@
   border: 1px solid #ddd;
   padding: 8px;
   text-align: left;
+  white-space: nowrap;
 }
 
 .table th {
@@ -103,12 +104,23 @@
     gap: 8px 0;
   }
 
-  .table th:nth-child(1),
-  .table td:nth-child(1),
-  .table th:nth-child(2),
-  .table td:nth-child(2),
-  .table th:nth-child(3),
-  .table td:nth-child(3) {
+  .table th.description,
+  .table td.description,
+  .table th.qty,
+  .table td.qty,
+  .table th.filledQty,
+  .table td.filledQty,
+  .table th.price,
+  .table td.price,
+  .table th.dateTime,
+  .table td.dateTime,
+  .table th.expiration,
+  .table td.expiration,
+  .table th.noRef,
+  .table td.noRef,
+  .table th.extRef,
+  .table td.extRef
+  {
     display: none;
   }
 }

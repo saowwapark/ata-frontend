@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import "./Table.css";
 import mockData from './../data.mock.json';
 import { BankAccountModel, mapToBankAccountModel } from "../models/bank.account.model";
+import _ from 'lodash';
+import { formatDate } from './../utils/formatter'
 
 export interface SearchInput {
   period: string;
@@ -11,15 +13,19 @@ export interface SearchInput {
 }
 
 const Table = () => {
+  const today = new Date();
+  const threeYearsAgo = new Date();
+  threeYearsAgo.setFullYear(today.getFullYear() - 3);
+
   const [data, setData] = useState([]);
   const [sortedData, setSortedData] = useState([]);
   const [sortConfig, setSortConfig] = useState({ key: "", direction: "" });
   const [expandedRows, setExpandedRows] = useState([]);
   const [countRow, setCountRow] = useState(data.length);
-  const [fromDate, setFromDate] = useState(new Date());
-  const [toDate, setToDate] = useState(new Date());
-  const [period, setPeriod] = useState("tranmission");
-  const [status, setStatus] = useState("waiting");
+  const [fromDate, setFromDate] = useState(threeYearsAgo);
+  const [toDate, setToDate] = useState(today);
+  const [selectedPeriod, setSelectedPeriod] = useState("transmission");
+  const [selectedStatus, setSelectedStatus] = useState("waiting");
   const [filteredData, setFilteredData] = useState(data);
 
 
@@ -32,30 +38,38 @@ const Table = () => {
     { id: 'filledQty', view: 'Filled Qty'},
     { id: 'price', view: 'Price'},
     { id: 'status', view: 'Status'},
-    { id: 'date', view: 'Date'},
+    { id: 'dateTime', view: 'Date'},
     { id: 'expiration', view: 'Expiration'},
     { id: 'noRef', view: 'No. Ref.'},
-    { id: 'extTef', view: 'Ext. Ref.'}
+    { id: 'extRef', view: 'Ext. Ref.'}
+  ]
+  const periods = [
+    { id: 'transmission', view: 'Transmission'},
+    { id: 'hello', view: 'Hello Test'},
+    { id: 'wowWow', view: 'Wow Wow'}
+  ]
+  const statuses = [
+    { id: 'waiting', view: 'Waiting'},
+    { id: 'pending', view: 'Pending'},
+    { id: 'finished', view: 'Finished'}
   ]
   useEffect(() => {
     const mappedData: BankAccountModel[] = mockData.data.map( field => mapToBankAccountModel(field))
     setData(mappedData);
-    setFilteredData(data)
-    setSortedData(data)
+    filterData(mappedData);
+    setSortedData(mappedData)
   },[])
 
-
-  const handleSearch = () => {
+  const filterData = (data: BankAccountModel[]) => {
     const searchInput: SearchInput = {
-      period,
-      status,
+      period: selectedPeriod,
+      status: selectedStatus,
       fromDate,
       toDate,
     };
-    const filtered = data.filter((item) => {
-      
+    const newFiltereData = data.filter((item) => {
       const matchesPeriod =
-        searchInput.period === "" || item.period.includes(searchInput.period);
+        searchInput.period === "" || item.period === searchInput.period;
       const matchesStatus =
         searchInput.status === "" || item.status === searchInput.status;
       const matchesFromDate =
@@ -66,10 +80,12 @@ const Table = () => {
       return matchesPeriod && matchesStatus && matchesFromDate && matchesToDate;
     });
 
-    setFilteredData(filtered);
+    setFilteredData(newFiltereData);
+    setCountRow(newFiltereData.length)
+    setSortedData(newFiltereData);
   };
     
-  const toggleRowExpansion = (index) => {
+  const toggleRowExpansion = (index: number) => {
     if (expandedRows.includes(index)) {
       setExpandedRows(expandedRows.filter((id) => id !== index));
     } else {
@@ -77,7 +93,8 @@ const Table = () => {
     }
   };
 
-  const requestSort = (key) => {
+  const requestSort = (key: string) => {
+    console.log('Call Request Sort')
     let direction = "ascending";
     if (sortConfig.key === key && sortConfig.direction === "ascending") {
       direction = "descending";
@@ -87,8 +104,6 @@ const Table = () => {
   };
 
   const sortData = () => {
-    console.log('call sort Data');
-    console.log(filteredData);
     const sortedData = [...filteredData].sort((a, b) => {
       if (a[sortConfig.key] < b[sortConfig.key]) {
         return sortConfig.direction === "ascending" ? -1 : 1;
@@ -101,7 +116,6 @@ const Table = () => {
     setSortedData(sortedData);
   }
 
-  
   return (
     <>
       <div className="overview">
@@ -118,14 +132,26 @@ const Table = () => {
         <div className="overview__right-column">
           <div className="field-value">
             <span>Period</span>
-            <select>
-              <option value="transmission">Transmission</option>
+            <select 
+              value={selectedPeriod}
+              onChange={(event) => setSelectedPeriod(event.target.value)}
+            >{ 
+                periods.map(item => (
+                  <option key={item.id} value="item.id">{item.view}</option>
+              ))}
+           
             </select>
           </div>
           <div className="field-value">
             <span>Status</span>
-            <select>
-              <option value="waiting">Waiting</option>
+            <select 
+              value={selectedStatus}
+              onChange={(event) => setSelectedStatus(event.target.value)}
+            >{
+                statuses.map(item => (
+                  <option  key={item.id} value={item.id}>{item.view}</option>
+                ))
+              }
             </select>
           </div>
           <div className="field-value">
@@ -147,7 +173,7 @@ const Table = () => {
             ></input>
           </div>
           <div className="wrap--center">
-            <button onClick={handleSearch}>Search</button>
+            <button onClick={() => filterData(data)}>Search</button>
           </div>
         </div>
       </div>
@@ -155,29 +181,30 @@ const Table = () => {
       <table className="table">
         <thead>
           <tr>
-            <th></th> {/* Column for expand button */}
-            {headerColumns.map((item, index) => (
-              <React.Fragment key={index}>
-                <th
-                  onClick={() => requestSort(item.id)}
+            {/* Column for expand button */}
+            <th></th> 
+            {/* Column for real header */}
+            {headerColumns.map((item) => (
+              <th
+                key={item.id}
+                onClick={() => requestSort(item.id)}
+                className={
+                  sortConfig.key === item.id
+                    ? `sorted-${sortConfig.direction} ${item.id}`
+                    : `${item.id}`
+                }
+              >
+                {item.view}
+                {sortConfig.key === item.id && (
+                <span
                   className={
-                    sortConfig.key === item.id
-                      ? `sorted-${sortConfig.direction}`
-                      : ""
+                    sortConfig.direction === "ascending"
+                      ? "chevron-up"
+                      : "chevron-down"
                   }
-                >
-                  {item.view}
-                  {sortConfig.key === item.id && (
-                  <span
-                    className={
-                      sortConfig.direction === "ascending"
-                        ? "chevron-up"
-                        : "chevron-down"
-                    }
-                  ></span>
-                )}
-                </th>
-              </React.Fragment>
+                ></span>
+              )}
+              </th>
             ))}
           </tr>
         </thead>
@@ -191,18 +218,18 @@ const Table = () => {
                       {expandedRows.includes(index) ? "-" : "+"}
                     </button>
                   </td>
-                  <td>{item.account}</td>
-                  <td>{item.operation}</td>
-                  <td>{item.symbol}</td>
-                  <td>{item.description}</td>
-                  <td>{item.qty}</td>
-                  <td>{item.filledQty}</td>
-                  <td>{item.price}</td>
-                  <td>{item.status}</td>
-                  <td>{item.dateTime.toString()}</td>
-                  <td>{item.expiration.toDateString()}</td>
-                  <td>{item.noRef}</td>
-                  <td>{item.extRef}</td>
+                  <td className="account">{item.account}</td>
+                  <td className="operation">{item.operation}</td>
+                  <td className="symbol">{item.symbol}</td>
+                  <td className="description">{item.description}</td>
+                  <td className="qty">{item.qty}</td>
+                  <td className="filledQty">{item.filledQty}</td>
+                  <td className="price">{item.price}</td>
+                  <td className="status">{_.capitalize(item.status)}</td>
+                  <td className="dateTime">{formatDate(item.dateTime)}</td>
+                  <td className="expiration">{formatDate(item.expiration)}</td>
+                  <td className="noRef">{item.noRef}</td>
+                  <td className="extRef">{item.extRef}</td>
                 </tr>
                 {expandedRows.includes(index) && (
                   <tr className="expanded-row">
