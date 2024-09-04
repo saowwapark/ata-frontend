@@ -19,10 +19,10 @@
     --color-warn-700: hsl(358, 72%, 15%);
   
     --color-grey-100: hsl(0, 0%, 100%);
-    --color-grey-200: hsl(0, 0%, 85%);
+    --color-grey-200: hsl(0, 0%, 95%);
     --color-grey-300: hsl(0, 0%, 75%);  
     --color-grey-400: hsl(0, 0%, 50%);  
     --color-grey-500: hsl(0, 0%, 35%);  
     --color-grey-600: hsl(0, 0%, 25%);  
-    --color-grey-700: hsl(0, 0%, 15%);  
+    --color-grey-700: hsl(0, 0%, 15%);
 }

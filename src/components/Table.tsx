@@ -3,7 +3,7 @@ import "./Table.css";
 import mockData from './../data.mock.json';
 import { BankAccountModel, mapToBankAccountModel } from "../models/bank.account.model";
 import { formatDate } from './../utils/formatter'
-
+import { FaSort, FaSortDown, FaSortUp } from "react-icons/fa6"
 export interface SearchInput {
   period: string;
   status: string;
@@ -195,14 +195,11 @@ const Table = () => {
                   }
                 >
                   {item.view}
+                  <FaSort/>
                   {sortConfig.key === item.id && (
-                  <span
-                    className={
-                      sortConfig.direction === "ascending"
-                        ? "chevron-up"
-                        : "chevron-down"
-                    }
-                  ></span>
+                    <>
+                      {sortConfig.direction === "ascending" ? <FaSortUp className="chevron-up"/> : <FaSortDown className="chevron-down"/>}
+                    </>
                 )}
                 </th>
               ))}
@@ -247,45 +244,60 @@ const Table = () => {
                         </div>
                         <hr className="horizontal-line"></hr>
                         <div className="expanded-row__content">
-                          <div className="field-value">
-                            <span> Net Amount:</span>
-                            {' '}
-                            <span>{item.netAmount} {' '}USD</span>
+                          <div className="expanded-row__content__data">
+                            <div className="field-value">
+                              <span> Net Amount:</span>
+                              {' '}
+                              <span>{item.netAmount} {' '}USD</span>
+                            </div>
+                            <div className="field-value">
+                              <span>Price:</span>
+                              {' '}
+                              <span>{item.price}</span>
+                            </div>
+                            <div className="field-value">
+                              <span>Exchange Rate:</span>
+                              {' '}
+                              <span>{item.exchangeRate}</span>
+                            </div>
+                            <div className="field-value">
+                              <span>O/S Limit:</span>
+                              {' '}
+                              <span>{item.osLimit}</span>
+                            </div>
+                            <div className="field-value">
+                              <span>Reference Number:</span>
+                              {' '}
+                              <span>{item.referenceNumber}</span>
+                            </div>
+                            <div className="field-value">
+                              <span>Date/Time:</span>
+                              {' '}
+                              <span>{formatDate(item.dateTime)}</span>
+                            </div>
+                            <div className="field-value">
+                              <span>Telephone:</span>
+                              {' '}
+                              <span>{item.telephone}</span>
+                            </div>
+                            <div className="field-value">
+                              <span>User ID:</span>
+                              {' '}
+                              <span>{item.userId}</span>
+                            </div>
                           </div>
-                          <div className="field-value">
-                            <span>Price:</span>
-                            {' '}
-                            <span>{item.price}</span>
-                          </div>
-                          <div className="field-value">
-                            <span>Exchange Rate:</span>
-                            {' '}
-                            <span>{item.exchangeRate}</span>
-                          </div>
-                          <div className="field-value">
-                            <span>O/S Limit:</span>
-                            {' '}
-                            <span>{item.osLimit}</span>
-                          </div>
-                          <div className="field-value">
-                            <span>Reference Number:</span>
-                            {' '}
-                            <span>{item.referenceNumber}</span>
-                          </div>
-                          <div className="field-value">
-                            <span>Date/Time:</span>
-                            {' '}
-                            <span>{formatDate(item.dateTime)}</span>
-                          </div>
-                          <div className="field-value">
-                            <span>Telephone:</span>
-                            {' '}
-                            <span>{item.telephone}</span>
-                          </div>
-                          <div className="field-value">
-                            <span>User ID:</span>
-                            {' '}
-                            <span>{item.userId}</span>
+                          <div className="expanded-row__content__warning">
+                            <div className="warning">
+                              <div className="warning__header">Warning(s)</div>
+                              <ul className="warning__content">
+                                <li>To trade this security in this account, a currency conversion will be made at the current rate.</li>
+                                <li>A similar order has already been submitted.</li>
+                                <li>Your transaction will be processed the following business day</li>
+                                <li>It is not possible to calculate the buying power of this order</li>
+                                <li>A cancellation will not be possible during business hours on market orders. You can call a representative for more information.</li>
+                                <li>For the above-mentioned reason(s), your order will be processed by one of our representatives</li>
+                              </ul>
+                            </div>
                           </div>
                         </div>
                       </td>
