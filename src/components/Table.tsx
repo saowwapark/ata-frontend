@@ -3,7 +3,8 @@ import "./Table.css";
 import mockData from './../data.mock.json';
 import { BankAccountModel, mapToBankAccountModel } from "../models/bank.account.model";
 import { formatDate } from './../utils/formatter'
-import { FaSort, FaSortDown, FaSortUp } from "react-icons/fa6"
+import { FaChevronDown, FaChevronRight, FaSort, FaSortDown, FaSortUp } from "react-icons/fa6"
+import { FaExternalLinkAlt } from "react-icons/fa";
 export interface SearchInput {
   period: string;
   status: string;
@@ -134,7 +135,7 @@ const Table = () => {
           <div className="overview__right-column">
             <div className="field-value">
               <span>Period</span>
-              <select 
+              <select
                 value={selectedPeriod}
                 onChange={(event) => setSelectedPeriod(event.target.value)}
               >{ 
@@ -172,7 +173,7 @@ const Table = () => {
                 onChange={(event) => setToDate(new Date(event.target.value))}
               ></input>
             </div>
-            <div className="wrap--center">
+            <div>
               <button className="button button--primary" onClick={() => filterData(data)}>Search</button>
             </div>
           </div>
@@ -182,7 +183,7 @@ const Table = () => {
           <thead>
             <tr>
               {/* Column for expand button */}
-              <th className="collapse"></th> 
+              <th className="collapsed-column"></th> 
               {/* Column for real header */}
               {headerColumns.map((item) => (
                 <th
@@ -195,12 +196,14 @@ const Table = () => {
                   }
                 >
                   {item.view}
-                  <FaSort/>
-                  {sortConfig.key === item.id && (
-                    <>
-                      {sortConfig.direction === "ascending" ? <FaSortUp className="chevron-up"/> : <FaSortDown className="chevron-down"/>}
-                    </>
-                )}
+                  {' '}
+                  {
+                    sortConfig.key === item.id
+                    ?
+                    sortConfig.direction === "ascending" ? <FaSortUp className="chevron-up"/> : <FaSortDown className="chevron-down"/>
+                    :
+                    <FaSort className="chevron-up-down"/>
+                  }
                 </th>
               ))}
             </tr>
@@ -210,9 +213,9 @@ const Table = () => {
               return (
                 <React.Fragment key={index}>
                   <tr>
-                    <td className="collapse">
-                      <button onClick={() => toggleRowExpansion(index)}>
-                        {expandedRows.includes(index) ? "-" : "+"}
+                    <td className="collapsed-column">
+                      <button className="expand-button" onClick={() => toggleRowExpansion(index)}>
+                        {expandedRows.includes(index) ? <FaChevronDown/> : <FaChevronRight/>}
                       </button>
                     </td>
                     <td className="account">{item.account}</td>
@@ -232,10 +235,15 @@ const Table = () => {
                     <tr className="expanded-row">
                       <td colSpan={13}>
                         <div className="expanded-row__header">
-                          <div>
-                            <span>{item.userName}</span>
-                            {' '}
-                            <span>({' '}{item.marginShort}{' '})</span>
+                          <div className="expanded-row_header--left">
+                            <div>
+                              <span>{item.userName}</span>
+                              {' '}
+                              <span>({' '}{item.marginShort}{' '})</span>
+                            </div>
+                            <div>
+                              <button className="button button--link">Full review details<FaExternalLinkAlt style={{marginLeft: "8px"}}/></button>
+                            </div>
                           </div>
                           <div className="expanded-row__header--right">
                             <button className="button button--primary">ACCEPT</button>

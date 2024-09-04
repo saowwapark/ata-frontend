@@ -1,6 +1,16 @@
 body {
   padding: 16px 24px;
 }
+select {
+  border-radius: 4px;
+  border: 1px solid var(--color-grey-300);
+  padding: 4px;
+}
+input[type='date'] {
+  border-radius: 4px;
+  border: 1px solid var(--color-grey-300);
+  padding: 2px;
+}
 .field-value  {
   display: flex;
   flex-wrap: nowrap;
@@ -13,11 +23,11 @@ body {
 .field-value span:nth-child(2) {
   white-space: nowrap;
 }
-.wrap--center {
-  display: flex;
-  justify-content: center;
+.expand-button {
+  width: 24px;
+  border: 0;
+  background-color: transparent;
 }
-
 .page__content {
   display: flex;
   flex-direction: column;
@@ -67,12 +77,23 @@ body {
 }
 
 .table th{
-  border: 1px solid #ddd;
-  padding: 8px;
+  cursor: pointer;
+  position: relative;
+  padding: 8px 24px;
   text-align: left;
   white-space: nowrap;
   color: var(--color-primary-500);
-  
+  width:max-content;
+}
+.chevron-up {
+  display: inline-block;
+}
+.chevron-down {
+  display: inline-block;
+}
+.chevron-up-down {
+  display: inline-block;
+  color: var(--color-grey-300);
 }
 
 .table tr {
@@ -86,9 +107,11 @@ body {
   text-align: left;
   white-space: nowrap; 
 }
-
-.table td.collapse {
-  padding: 8px 8px;
+.table td.collapsed-column{
+  padding-inline: 8px;
+}
+.table th.collapsed-column:hover {
+  background-color: transparent;
 }
 
 .table td.account {
@@ -113,38 +136,28 @@ table td.symbol {
   text-transform: capitalize;
 }
 
-
-.table th {
-  cursor: pointer;
-  position: relative;
-}
-
-.chevron {
-  margin-left: 8px;
-  font-size: 10px;
-}
-
-.table th.sorted-ascending:after {
-  opacity: 1;
-  transform: translateY(-50%) rotate(180deg);
-}
-
-.table th.sorted-descending:after {
-  opacity: 1;
-}
 .table thead th:hover{
   background-color: var(--color-grey-200);
 }
 .table tbody tr:hover {
   background-color: var(--color-grey-200);
 }
+.table tbody .expanded-row:hover {
+  background-color: transparent;
+}
 
-.expanded-row .expanded-row__header {
+.expanded-row__header {
   display: flex;
   justify-content: space-between;
   text-transform: uppercase;
   color: var(--color-primary-400);
   font-weight: var(--fw-bold);
+  padding-bottom: 12px;
+}
+.expanded-row_header--left {
+  display: flex;
+  gap: 0 20px;
+  align-items: center;
 }
 .expanded-row__header--right {
   display: flex;
@@ -154,6 +167,7 @@ table td.symbol {
   display: flex;
   flex-direction: column;
   gap: 20px 0;
+  padding-top: 20px;
 }
 .expanded-row__content__data {
   display: grid;
