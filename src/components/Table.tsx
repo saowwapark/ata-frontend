@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import "./Table.css";
 import mockData from './../data.mock.json';
 import { BankAccountModel, mapToBankAccountModel } from "../models/bank.account.model";
-import _ from 'lodash';
 import { formatDate } from './../utils/formatter'
 
 export interface SearchInput {
@@ -94,22 +93,21 @@ const Table = () => {
   };
 
   const requestSort = (key: string) => {
-    console.log('Call Request Sort')
     let direction = "ascending";
     if (sortConfig.key === key && sortConfig.direction === "ascending") {
       direction = "descending";
     }
     setSortConfig({ key, direction });
-    sortData();
+    sortData({key, direction});
   };
 
-  const sortData = () => {
+  const sortData = ({key, direction}) => {
     const sortedData = [...filteredData].sort((a, b) => {
-      if (a[sortConfig.key] < b[sortConfig.key]) {
-        return sortConfig.direction === "ascending" ? -1 : 1;
+      if (a[key] < b[key]) {
+        return direction === "ascending" ? -1 : 1;
       }
-      if (a[sortConfig.key] > b[sortConfig.key]) {
-        return sortConfig.direction === "ascending" ? 1 : -1;
+      if (a[key] > b[key]) {
+        return direction === "ascending" ? 1 : -1;
       }
       return 0;
     });
@@ -118,184 +116,187 @@ const Table = () => {
 
   return (
     <>
-      <div className="overview">
-        <div className="overview__left-column">
-          <div>
-            <div>Search</div>
+      <h1>Exercise</h1>
+      <div className="page__content">
+        <div className="overview">
+          <div className="overview__left-column">
+            <div>
+              <div className="overview__left-column__header">Search</div>
+              <div className="overview__left-column__content">
+                <div className="field-value">
+                  <span className="field-value__field">Search result:</span>
+                  {' '}
+                  <span className="field-value__value">{countRow}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className="overview__right-column">
             <div className="field-value">
-              <span className="field-value__field">Search result:</span>
-              {' '}
-              <span className="field-value__value">{countRow}</span>
+              <span>Period</span>
+              <select 
+                value={selectedPeriod}
+                onChange={(event) => setSelectedPeriod(event.target.value)}
+              >{ 
+                  periods.map(item => (
+                    <option key={item.id} value="item.id">{item.view}</option>
+                ))}
+            
+              </select>
+            </div>
+            <div className="field-value">
+              <span>Status</span>
+              <select 
+                value={selectedStatus}
+                onChange={(event) => setSelectedStatus(event.target.value)}
+              >{
+                  statuses.map(item => (
+                    <option  key={item.id} value={item.id}>{item.view}</option>
+                  ))
+                }
+              </select>
+            </div>
+            <div className="field-value">
+              <span>From</span>
+              <input
+                type="date"
+                value={fromDate.toISOString().split("T")[0]}
+                onChange={(event) => setFromDate(new Date(event.target.value))}
+              ></input>
+            </div>
+            <div className="field-value">
+              <span>To</span>
+              <input
+                type="date"
+                value={toDate.toISOString().split("T")[0]}
+                onChange={(event) => setToDate(new Date(event.target.value))}
+              ></input>
+            </div>
+            <div className="wrap--center">
+              <button className="button button--primary" onClick={() => filterData(data)}>Search</button>
             </div>
           </div>
         </div>
-        <div className="overview__right-column">
-          <div className="field-value">
-            <span>Period</span>
-            <select 
-              value={selectedPeriod}
-              onChange={(event) => setSelectedPeriod(event.target.value)}
-            >{ 
-                periods.map(item => (
-                  <option key={item.id} value="item.id">{item.view}</option>
-              ))}
-           
-            </select>
-          </div>
-          <div className="field-value">
-            <span>Status</span>
-            <select 
-              value={selectedStatus}
-              onChange={(event) => setSelectedStatus(event.target.value)}
-            >{
-                statuses.map(item => (
-                  <option  key={item.id} value={item.id}>{item.view}</option>
-                ))
-              }
-            </select>
-          </div>
-          <div className="field-value">
-            <span>From</span>
-            <input
-              type="date"
-              id="fromDate"
-              value={fromDate.toISOString().split("T")[0]}
-              onChange={(event) => setFromDate(new Date(event.target.value))}
-            ></input>
-          </div>
-          <div className="field-value">
-            <span>To</span>
-            <input
-              type="date"
-              id="toDate"
-              value={toDate.toISOString().split("T")[0]}
-              onChange={(event) => setToDate(new Date(event.target.value))}
-            ></input>
-          </div>
-          <div className="wrap--center">
-            <button onClick={() => filterData(data)}>Search</button>
-          </div>
-        </div>
-      </div>
 
-      <table className="table">
-        <thead>
-          <tr>
-            {/* Column for expand button */}
-            <th></th> 
-            {/* Column for real header */}
-            {headerColumns.map((item) => (
-              <th
-                key={item.id}
-                onClick={() => requestSort(item.id)}
-                className={
-                  sortConfig.key === item.id
-                    ? `sorted-${sortConfig.direction} ${item.id}`
-                    : `${item.id}`
-                }
-              >
-                {item.view}
-                {sortConfig.key === item.id && (
-                <span
+        <table className="table">
+          <thead>
+            <tr>
+              {/* Column for expand button */}
+              <th className="collapse"></th> 
+              {/* Column for real header */}
+              {headerColumns.map((item) => (
+                <th
+                  key={item.id}
+                  onClick={() => requestSort(item.id)}
                   className={
-                    sortConfig.direction === "ascending"
-                      ? "chevron-up"
-                      : "chevron-down"
+                    sortConfig.key === item.id
+                      ? `sorted-${sortConfig.direction} ${item.id}`
+                      : `${item.id}`
                   }
-                ></span>
-              )}
-              </th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {sortedData.map((item: BankAccountModel, index) => {
-            return (
-              <React.Fragment key={index}>
-                <tr>
-                  <td>
-                    <button onClick={() => toggleRowExpansion(index)}>
-                      {expandedRows.includes(index) ? "-" : "+"}
-                    </button>
-                  </td>
-                  <td className="account">{item.account}</td>
-                  <td className="operation">{item.operation}</td>
-                  <td className="symbol">{item.symbol}</td>
-                  <td className="description">{item.description}</td>
-                  <td className="qty">{item.qty}</td>
-                  <td className="filledQty">{item.filledQty}</td>
-                  <td className="price">{item.price}</td>
-                  <td className="status">{_.capitalize(item.status)}</td>
-                  <td className="dateTime">{formatDate(item.dateTime)}</td>
-                  <td className="expiration">{formatDate(item.expiration)}</td>
-                  <td className="noRef">{item.noRef}</td>
-                  <td className="extRef">{item.extRef}</td>
-                </tr>
-                {expandedRows.includes(index) && (
-                  <tr className="expanded-row">
-                    <td></td>
-                    <td colSpan={12}>
-                      <div className="first-row">
-                        <div>
-                          <span>{item.userName}</span>
-                          <span>({item.marginShort})</span>
-                        </div>
-                        <div>
-                          <button>ACCEPT</button>
-                          <button>Reject</button>
-                        </div>
-                      </div>
-                      <hr className="horizontal-line"></hr>
-                      <div className="second-row">
-                        <div className="field-value">
-                          <span> Net Amount:</span>
-                          {' '}
-                          <span>{item.netAmount} </span>
-                        </div>
-                        <div className="field-value">
-                          <span>Price:</span>
-                          {' '}
-                          <span>{item.price}</span>
-                        </div>
-                        <div className="field-value">
-                          <span>Exchange Rate:</span>
-                          {' '}
-                          <span>{item.exchangeRate}</span>
-                        </div>
-                        <div className="field-value">
-                          <span>O/S Limit:</span>
-                          {' '}
-                          <span>{item.osLimit}</span>
-                        </div>
-                        <div className="field-value">
-                          <span>Reference Number:</span>
-                          {' '}
-                          <span>{item.referenceNumber}</span>
-                        </div>
-                        <div className="field-value">
-                          <span>Date Time:</span>
-                          {' '}
-                          <span>Date Time</span>
-                        </div>
-                        <div className="field-value">
-                          <span>Telephone:</span>
-                          {' '}
-                          <span>{item.telephone}</span>
-                        </div>
-                        <div className="field-value">
-                          <span>User ID:</span>
-                          {' '}
-                          <span>{item.userId}</span>
-                        </div>
-                      </div>
-                    </td>
-                  </tr>
+                >
+                  {item.view}
+                  {sortConfig.key === item.id && (
+                  <span
+                    className={
+                      sortConfig.direction === "ascending"
+                        ? "chevron-up"
+                        : "chevron-down"
+                    }
+                  ></span>
                 )}
-              </React.Fragment>
-            );
-          })}
-        </tbody>
-      </table>
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {sortedData.map((item: BankAccountModel, index) => {
+              return (
+                <React.Fragment key={index}>
+                  <tr>
+                    <td className="collapse">
+                      <button onClick={() => toggleRowExpansion(index)}>
+                        {expandedRows.includes(index) ? "-" : "+"}
+                      </button>
+                    </td>
+                    <td className="account">{item.account}</td>
+                    <td className="operation">{item.operation}</td>
+                    <td className="symbol">{item.symbol}</td>
+                    <td className="description">{item.description}</td>
+                    <td className="qty">{item.qty}</td>
+                    <td className="filledQty">{item.filledQty}</td>
+                    <td className="price">{item.price}</td>
+                    <td className="status">{item.status}</td>
+                    <td className="dateTime">{formatDate(item.dateTime)}</td>
+                    <td className="expiration">{formatDate(item.expiration)}</td>
+                    <td className="noRef">{item.noRef}</td>
+                    <td className="extRef">{item.extRef}</td>
+                  </tr>
+                  {expandedRows.includes(index) && (
+                    <tr className="expanded-row">
+                      <td colSpan={13}>
+                        <div className="expanded-row__header">
+                          <div>
+                            <span>{item.userName}</span>
+                            {' '}
+                            <span>({' '}{item.marginShort}{' '})</span>
+                          </div>
+                          <div className="expanded-row__header--right">
+                            <button className="button button--primary">ACCEPT</button>
+                            <button className="button button--warn">Reject</button>
+                          </div>
+                        </div>
+                        <hr className="horizontal-line"></hr>
+                        <div className="expanded-row__content">
+                          <div className="field-value">
+                            <span> Net Amount:</span>
+                            {' '}
+                            <span>{item.netAmount} {' '}USD</span>
+                          </div>
+                          <div className="field-value">
+                            <span>Price:</span>
+                            {' '}
+                            <span>{item.price}</span>
+                          </div>
+                          <div className="field-value">
+                            <span>Exchange Rate:</span>
+                            {' '}
+                            <span>{item.exchangeRate}</span>
+                          </div>
+                          <div className="field-value">
+                            <span>O/S Limit:</span>
+                            {' '}
+                            <span>{item.osLimit}</span>
+                          </div>
+                          <div className="field-value">
+                            <span>Reference Number:</span>
+                            {' '}
+                            <span>{item.referenceNumber}</span>
+                          </div>
+                          <div className="field-value">
+                            <span>Date/Time:</span>
+                            {' '}
+                            <span>{formatDate(item.dateTime)}</span>
+                          </div>
+                          <div className="field-value">
+                            <span>Telephone:</span>
+                            {' '}
+                            <span>{item.telephone}</span>
+                          </div>
+                          <div className="field-value">
+                            <span>User ID:</span>
+                            {' '}
+                            <span>{item.userId}</span>
+                          </div>
+                        </div>
+                      </td>
+                    </tr>
+                  )}
+                </React.Fragment>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
     </>
   );
 };
